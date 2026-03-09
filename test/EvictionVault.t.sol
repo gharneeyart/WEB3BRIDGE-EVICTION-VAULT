@@ -36,8 +36,6 @@ contract EvictionVaultTest is Test {
         vm.deal(address(this),  10 ether);
     }
 
-    // ── Deposit ───────────────────────────────────────────────────────────────
-
     function testDeposit() public {
         uint256 amount = 1 ether;
         evault.deposit{value: amount}();
@@ -47,7 +45,6 @@ contract EvictionVaultTest is Test {
         assertEq(evault.totalVaultValue(), amount);
     }
 
-    // ── Withdraw ──────────────────────────────────────────────────────────────
 
     function testWithdraw() public {
         evault.deposit{value: 2 ether}();
@@ -86,7 +83,6 @@ contract EvictionVaultTest is Test {
 
   
     function testEmergencyWithdrawAll() public {
-        // Deposit some ETH first
         evault.deposit{value: 3 ether}();
 
         uint256 halimahBefore = halimah.balance;
