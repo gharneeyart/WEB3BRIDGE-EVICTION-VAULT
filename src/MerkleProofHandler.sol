@@ -15,7 +15,7 @@ contract MerkleProofHandler is Multisigs {
     constructor(address[] memory _owners, uint256 _threshold)
         Multisigs(_owners, _threshold) {}
 
-    // ✅ setMerkleRoot is onlyOwner — was callable by anyone before
+    
     function setMerkleRoot(bytes32 root) external onlyOwner {
         merkleRoot = root;
         emit MerkleRootSet(root);

@@ -84,7 +84,7 @@ contract EvictionVaultTest is Test {
         vm.prank(halimah);
         // evault.submitPause();
 
-        // 2. Second confirmation
+       
         vm.prank(afeez);
         evault.confirmTransaction(0);
 

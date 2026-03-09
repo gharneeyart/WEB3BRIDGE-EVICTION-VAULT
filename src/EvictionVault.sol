@@ -43,8 +43,6 @@ contract EvictionVault is MerkleProofHandler{
         balances[msg.sender] -= amount;
         totalVaultValue      -= amount;
 
-        // ✅ .call instead of .transfer — .transfer has a 2300 gas limit
-        // which causes failures for smart contract wallets
         (bool success,) = payable(msg.sender).call{value: amount}("");
         require(success, "Withdrawal failed");
 
@@ -98,25 +96,5 @@ contract EvictionVault is MerkleProofHandler{
         }
     }
 
-    // function executeTransaction(uint256 txId) external override(EmergencyFunctions, Multisigs) onlyOwner
-    // {
-    //     Transaction storage txn = transactions[txId];
-    //     require(txn.confirmations >= threshold, "Not enough confirmations");
-    //     require(!txn.executed, "Already executed");
-    //     require(txn.executionTime != 0, "Timelock not started");
-    //     require(block.timestamp >= txn.executionTime, "Timelock not elapsed");
-
-    //     txn.executed = true;
-
-    //     if (isPauseTx[txId]) {
-    //         pause();         // internal — cannot be called from outside
-    //     } else if (isUnpauseTx[txId]) {
-    //         unpause();       // internal — cannot be called from outside
-    //     } else {
-    //         (bool s,) = txn.to.call{value: txn.value}(txn.data);
-    //         require(s, "execution failed");
-    //     }
-
-    //     emit Execution(txId);
-    // }
+   
 }
