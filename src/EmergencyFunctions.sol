@@ -12,8 +12,7 @@ contract EmergencyFunctions is Multisigs {
     event Paused();
     event Unpaused();
 
-    constructor(address[] memory _owners, uint256 _threshold)
-        Multisigs(_owners, _threshold) {}
+    constructor(address[] memory _owners, uint256 _threshold) Multisigs(_owners, _threshold) {}
 
     function submitPause() external onlyOwner {
         uint256 id = txCount++;

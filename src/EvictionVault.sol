@@ -5,7 +5,7 @@ import "../lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol";
 import "./MerkleProofHandler.sol";
 import "./EmergencyFunctions.sol";
 
-contract EvictionVault is MerkleProofHandler{
+contract EvictionVault is MerkleProofHandler {
     mapping(address => uint256) public balances;
     uint256 public totalVaultValue;
     mapping(uint256 => bool) public isPauseTx;
@@ -16,22 +16,19 @@ contract EvictionVault is MerkleProofHandler{
 
     event EmergencyWithdrawal(address indexed recipient, uint256 amount);
 
-    constructor(address[] memory _owners, uint256 _threshold) payable
-        MerkleProofHandler(_owners, _threshold)
-    {
+    constructor(address[] memory _owners, uint256 _threshold) payable MerkleProofHandler(_owners, _threshold) {
         totalVaultValue = msg.value;
     }
 
-  
     receive() external payable {
         balances[msg.sender] += msg.value;
-        totalVaultValue      += msg.value;
+        totalVaultValue += msg.value;
         emit Deposit(msg.sender, msg.value);
     }
 
     function deposit() external payable {
         balances[msg.sender] += msg.value;
-        totalVaultValue      += msg.value;
+        totalVaultValue += msg.value;
         emit Deposit(msg.sender, msg.value);
     }
 
@@ -39,7 +36,7 @@ contract EvictionVault is MerkleProofHandler{
         require(balances[msg.sender] >= amount, "Insufficient balance");
 
         balances[msg.sender] -= amount;
-        totalVaultValue      -= amount;
+        totalVaultValue -= amount;
 
         (bool success,) = payable(msg.sender).call{value: amount}("");
         require(success, "Withdrawal failed");
@@ -47,14 +44,9 @@ contract EvictionVault is MerkleProofHandler{
         emit Withdrawal(msg.sender, amount);
     }
 
-    function verifySignature(
-        address signer,
-        bytes32 messageHash,
-        bytes memory signature
-    ) external pure returns (bool) {
+    function verifySignature(address signer, bytes32 messageHash, bytes memory signature) external pure returns (bool) {
         return ECDSA.recover(messageHash, signature) == signer;
     }
-
 
     function submitEmergencyWithdrawAll() external onlyOwner {
         uint256 id = txCount++;
@@ -63,7 +55,7 @@ contract EvictionVault is MerkleProofHandler{
             value: 0,
             data: abi.encodeWithSignature("emergencyWithdrawAll()"),
             executed: false,
-            confirmations: 0,   
+            confirmations: 0,
             submissionTime: block.timestamp,
             executionTime: 0
         });
@@ -77,7 +69,6 @@ contract EvictionVault is MerkleProofHandler{
         emit Submission(id);
     }
 
- 
     function emergencyWithdrawAll() external {
         require(msg.sender == address(this), "Only via multisig");
         require(address(this).balance > 0, "No balance");
@@ -92,6 +83,4 @@ contract EvictionVault is MerkleProofHandler{
             emit EmergencyWithdrawal(owners[i], share);
         }
     }
-
-   
 }

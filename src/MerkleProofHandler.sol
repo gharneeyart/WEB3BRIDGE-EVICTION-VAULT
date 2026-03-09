@@ -5,17 +5,14 @@ import "../lib/openzeppelin-contracts/contracts/utils/cryptography/MerkleProof.s
 import {Multisigs} from "./Multisig.sol";
 
 contract MerkleProofHandler is Multisigs {
-
     bytes32 public merkleRoot;
     mapping(address => bool) public claimed;
 
     event MerkleRootSet(bytes32 indexed newRoot);
     event Claim(address indexed claimant, uint256 amount);
 
-    constructor(address[] memory _owners, uint256 _threshold)
-        Multisigs(_owners, _threshold) {}
+    constructor(address[] memory _owners, uint256 _threshold) Multisigs(_owners, _threshold) {}
 
-    
     function setMerkleRoot(bytes32 root) external onlyOwner {
         merkleRoot = root;
         emit MerkleRootSet(root);

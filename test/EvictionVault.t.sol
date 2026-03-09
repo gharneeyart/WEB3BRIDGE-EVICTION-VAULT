@@ -14,7 +14,7 @@ contract EvictionVaultTest is Test {
 
     function setUp() public {
         halimah = makeAddr("Halimah");
-        afeez   = makeAddr("Afeez");
+        afeez = makeAddr("Afeez");
         ganiyat = makeAddr("Ganiyat");
         mcdavid = makeAddr("McDavid");
 
@@ -29,11 +29,11 @@ contract EvictionVaultTest is Test {
         evault = new EvictionVault(owners, threshold);
 
         // Fund test accounts
-        vm.deal(halimah,        10 ether);
-        vm.deal(afeez,          10 ether);
-        vm.deal(ganiyat,        10 ether);
-        vm.deal(mcdavid,        10 ether);
-        vm.deal(address(this),  10 ether);
+        vm.deal(halimah, 10 ether);
+        vm.deal(afeez, 10 ether);
+        vm.deal(ganiyat, 10 ether);
+        vm.deal(mcdavid, 10 ether);
+        vm.deal(address(this), 10 ether);
     }
 
     function testDeposit() public {
@@ -44,7 +44,6 @@ contract EvictionVaultTest is Test {
         assertEq(evault.balances(address(this)), amount);
         assertEq(evault.totalVaultValue(), amount);
     }
-
 
     function testWithdraw() public {
         evault.deposit{value: 2 ether}();
@@ -58,44 +57,47 @@ contract EvictionVaultTest is Test {
 
     function testWithdraw_RevertIfPaused() public {
         evault.deposit{value: 1 ether}();
-             
-        vm.prank(afeez);    evault.confirmTransaction(0);            
-        vm.prank(ganiyat);  evault.confirmTransaction(0);           
 
-   
+        vm.prank(afeez);
+        evault.confirmTransaction(0);
+        vm.prank(ganiyat);
+        evault.confirmTransaction(0);
+
         vm.warp(block.timestamp + 1 hours + 1);
-    
+
         evault.withdraw(1 ether);
     }
 
     function testUnpause_RequiresMultisig() public {
-       
-        vm.prank(afeez);   evault.confirmTransaction(0);
-        vm.prank(ganiyat); evault.confirmTransaction(0);
+        vm.prank(afeez);
+        evault.confirmTransaction(0);
+        vm.prank(ganiyat);
+        evault.confirmTransaction(0);
         vm.warp(block.timestamp + 1 hours + 1);
-       
-        vm.prank(afeez);   evault.confirmTransaction(1);
-        vm.prank(ganiyat); evault.confirmTransaction(1);
+
+        vm.prank(afeez);
+        evault.confirmTransaction(1);
+        vm.prank(ganiyat);
+        evault.confirmTransaction(1);
         vm.warp(block.timestamp + 1 hours + 1);
-       
-       
     }
 
-  
     function testEmergencyWithdrawAll() public {
         evault.deposit{value: 3 ether}();
 
         uint256 halimahBefore = halimah.balance;
 
-      
-        vm.prank(halimah); evault.submitEmergencyWithdrawAll();      
-        vm.prank(afeez);   evault.confirmTransaction(0);             
-        vm.prank(ganiyat); evault.confirmTransaction(0);             
+        vm.prank(halimah);
+        evault.submitEmergencyWithdrawAll();
+        vm.prank(afeez);
+        evault.confirmTransaction(0);
+        vm.prank(ganiyat);
+        evault.confirmTransaction(0);
 
         vm.warp(block.timestamp + 1 hours + 1);
-        vm.prank(halimah); evault.executeTransaction(0);
+        vm.prank(halimah);
+        evault.executeTransaction(0);
 
-       
         assertEq(address(evault).balance, 0);
         assertEq(evault.totalVaultValue(), 0);
 
@@ -105,7 +107,6 @@ contract EvictionVaultTest is Test {
     function testEmergencyWithdrawAll_CannotCallDirectly() public {
         evault.deposit{value: 1 ether}();
 
-       
         vm.expectRevert("Only via multisig");
         evault.emergencyWithdrawAll();
     }

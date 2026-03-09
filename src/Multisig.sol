@@ -37,7 +37,7 @@ contract Multisigs {
         require(_threshold > 0 && _threshold <= _owners.length, "invalid threshold");
         threshold = _threshold;
 
-        for (uint i = 0; i < _owners.length; i++) {
+        for (uint256 i = 0; i < _owners.length; i++) {
             address o = _owners[i];
             require(o != address(0), "zero address owner");
             require(!isOwner[o], "duplicate owner");
@@ -46,8 +46,7 @@ contract Multisigs {
         }
     }
 
-    // ✅ Fix 1: inverted logic was blocking owners — != true means non-owners passed
-    modifier onlyOwner {
+    modifier onlyOwner() {
         if (!isOwner[msg.sender]) revert NOT_OWNER();
         _;
     }
@@ -59,16 +58,14 @@ contract Multisigs {
             value: value,
             data: data,
             executed: false,
-            confirmations: 0,   
+            confirmations: 0,
             submissionTime: block.timestamp,
             executionTime: 0
         });
 
-    
         confirmed[id][msg.sender] = true;
         transactions[id].confirmations = 1;
 
-      
         if (threshold == 1) {
             transactions[id].executionTime = block.timestamp + TIMELOCK_DURATION;
         }
