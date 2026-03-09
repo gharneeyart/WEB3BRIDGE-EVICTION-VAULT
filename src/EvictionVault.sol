@@ -13,7 +13,7 @@ contract EvictionVault is MerkleProofHandler{
 
     event Deposit(address indexed depositor, uint256 amount);
     event Withdrawal(address indexed withdrawer, uint256 amount);
-    // ✅ Fix 6: event now indexes the recipient, not address(this)
+
     event EmergencyWithdrawal(address indexed recipient, uint256 amount);
 
     constructor(address[] memory _owners, uint256 _threshold) payable
@@ -36,10 +36,8 @@ contract EvictionVault is MerkleProofHandler{
     }
 
     function withdraw(uint256 amount) external {
-        // require(!paused, "Paused");
         require(balances[msg.sender] >= amount, "Insufficient balance");
 
-        // checks-effects-interactions: update state before external call
         balances[msg.sender] -= amount;
         totalVaultValue      -= amount;
 
@@ -57,7 +55,6 @@ contract EvictionVault is MerkleProofHandler{
         return ECDSA.recover(messageHash, signature) == signer;
     }
 
-    // ── Emergency withdraw — must collect threshold confirmations ─────────────
 
     function submitEmergencyWithdrawAll() external onlyOwner {
         uint256 id = txCount++;
@@ -66,7 +63,7 @@ contract EvictionVault is MerkleProofHandler{
             value: 0,
             data: abi.encodeWithSignature("emergencyWithdrawAll()"),
             executed: false,
-            confirmations: 0,   // ✅ start at 0 — must go through multisig flow
+            confirmations: 0,   
             submissionTime: block.timestamp,
             executionTime: 0
         });
@@ -80,7 +77,7 @@ contract EvictionVault is MerkleProofHandler{
         emit Submission(id);
     }
 
-    // ✅ only callable via the multisig execute flow — not directly
+ 
     function emergencyWithdrawAll() external {
         require(msg.sender == address(this), "Only via multisig");
         require(address(this).balance > 0, "No balance");

@@ -22,7 +22,7 @@ contract EmergencyFunctions is Multisigs {
             value: 0,
             data: abi.encodeWithSignature("pause()"),
             executed: false,
-            confirmations: 0,   // ✅ start at 0
+            confirmations: 0,
             submissionTime: block.timestamp,
             executionTime: 0
         });
@@ -44,7 +44,7 @@ contract EmergencyFunctions is Multisigs {
             value: 0,
             data: abi.encodeWithSignature("unpause()"),
             executed: false,
-            confirmations: 0,   // ✅ start at 0
+            confirmations: 0,
             submissionTime: block.timestamp,
             executionTime: 0
         });
@@ -59,7 +59,6 @@ contract EmergencyFunctions is Multisigs {
         emit Submission(id);
     }
 
-    // ✅ Fix 4: internal — cannot be called directly from outside, only via executeTransaction
     function pause() internal {
         require(!paused, "Already paused");
         paused = true;
@@ -72,7 +71,6 @@ contract EmergencyFunctions is Multisigs {
         emit Unpaused();
     }
 
-    // Override executeTransaction to handle pause/unpause routing
     function executeTransaction(uint256 txId) external virtual override onlyOwner {
         Transaction storage txn = transactions[txId];
         require(txn.confirmations >= threshold, "Not enough confirmations");
@@ -82,8 +80,6 @@ contract EmergencyFunctions is Multisigs {
 
         txn.executed = true;
 
-        // Route pause/unpause internally instead of using .call
-        // This prevents anyone from crafting a tx that calls pause() directly
         if (isPauseTx[txId]) {
             pause();
         } else if (isUnpauseTx[txId]) {

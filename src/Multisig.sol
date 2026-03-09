@@ -59,16 +59,16 @@ contract Multisigs {
             value: value,
             data: data,
             executed: false,
-            confirmations: 0,   // ✅ Fix 2: start at 0, submitter confirms below
+            confirmations: 0,   
             submissionTime: block.timestamp,
             executionTime: 0
         });
 
-        // Auto-confirm for submitter — brings it to 1
+    
         confirmed[id][msg.sender] = true;
         transactions[id].confirmations = 1;
 
-        // ✅ Fix 3: if threshold is 1, set executionTime immediately
+      
         if (threshold == 1) {
             transactions[id].executionTime = block.timestamp + TIMELOCK_DURATION;
         }
