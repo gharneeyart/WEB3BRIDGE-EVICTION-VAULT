@@ -14,7 +14,6 @@ I changed it to use .call instead of .transfer because .transfer has a 2300 gas 
 emergencyWithdrawAll() public drain was accessible to anyone, it uses transfer, 
 The modification i made was to make sure the emergency withdraw function was submitted using the submitEmergencyWithdrawAll(), now it's only callable via the multisig execute flow
 
-
 # timelock
 set timelock the moment threshold is reached
 

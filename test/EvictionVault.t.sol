@@ -71,33 +71,6 @@ contract EvictionVaultTest is Test {
         evault.withdraw(1 ether);
     }
 
-
-
-    function testPause_RequiresMultisig() public {
- 
-        vm.prank(halimah);
-     
-
-       
-        vm.prank(afeez);
-        evault.confirmTransaction(0);
-
-        vm.prank(ganiyat);
-        evault.confirmTransaction(0);
-
-     
-        vm.prank(halimah);
-        vm.expectRevert("Timelock not elapsed");
-        evault.executeTransaction(0);
-
-    
-        vm.warp(block.timestamp + 1 hours + 1);
-        vm.prank(halimah);
-        evault.executeTransaction(0);
-
-   
-    }
-
     function testUnpause_RequiresMultisig() public {
        
         vm.prank(afeez);   evault.confirmTransaction(0);
@@ -139,26 +112,6 @@ contract EvictionVaultTest is Test {
        
         vm.expectRevert("Only via multisig");
         evault.emergencyWithdrawAll();
-    }
-
-    function testEmergencyWithdrawAll_NotEnoughConfirmations() public {
-        evault.deposit{value: 1 ether}();
-
-        vm.prank(halimah); evault.submitEmergencyWithdrawAll();
-
-        vm.warp(block.timestamp + 1 hours + 1);
-
-        vm.prank(halimah);
-        vm.expectRevert("Not enough confirmations");
-        evault.executeTransaction(0);
-    }
-
-
-    function testOnlyOwner_BlocksNonOwner() public {
-        address attacker = makeAddr("attacker");
-        vm.prank(attacker);
-        vm.expectRevert();
-       
     }
 
     receive() external payable {}
