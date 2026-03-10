@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import "./Multisig.sol";
+import {Multisigs} from "./Multisig.sol";
 
 contract EmergencyFunctions is Multisigs {
     bool public paused;
@@ -13,6 +13,11 @@ contract EmergencyFunctions is Multisigs {
     event Unpaused();
 
     constructor(address[] memory _owners, uint256 _threshold) Multisigs(_owners, _threshold) {}
+
+    modifier whenNotPaused() {
+        require(!paused, "Contract is paused");
+        _;
+    }
 
     function submitPause() external onlyOwner {
         uint256 id = txCount++;
@@ -58,13 +63,15 @@ contract EmergencyFunctions is Multisigs {
         emit Submission(id);
     }
 
-    function pause() internal {
+    function pause() public {
+        require(msg.sender == address(this), "Only via multisig");
         require(!paused, "Already paused");
         paused = true;
         emit Paused();
     }
 
-    function unpause() internal {
+    function unpause() public {
+        require(msg.sender == address(this), "Only via multisig");
         require(paused, "Not paused");
         paused = false;
         emit Unpaused();
@@ -80,9 +87,13 @@ contract EmergencyFunctions is Multisigs {
         txn.executed = true;
 
         if (isPauseTx[txId]) {
-            pause();
+            require(!paused, "Already paused");
+            paused = true;
+            emit Paused();
         } else if (isUnpauseTx[txId]) {
-            unpause();
+            require(paused, "Not paused");
+            paused = false;
+            emit Unpaused();
         } else {
             (bool s,) = txn.to.call{value: txn.value}(txn.data);
             require(s, "execution failed");

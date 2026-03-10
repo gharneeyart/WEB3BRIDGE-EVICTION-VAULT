@@ -2,16 +2,16 @@
 pragma solidity ^0.8.30;
 
 import "../lib/openzeppelin-contracts/contracts/utils/cryptography/MerkleProof.sol";
-import {Multisigs} from "./Multisig.sol";
+import "./EmergencyFunctions.sol";
 
-contract MerkleProofHandler is Multisigs {
+contract MerkleProofHandler is EmergencyFunctions {
     bytes32 public merkleRoot;
     mapping(address => bool) public claimed;
 
     event MerkleRootSet(bytes32 indexed newRoot);
     event Claim(address indexed claimant, uint256 amount);
 
-    constructor(address[] memory _owners, uint256 _threshold) Multisigs(_owners, _threshold) {}
+    constructor(address[] memory _owners, uint256 _threshold) EmergencyFunctions(_owners, _threshold) {}
 
     function setMerkleRoot(bytes32 root) external onlyOwner {
         merkleRoot = root;

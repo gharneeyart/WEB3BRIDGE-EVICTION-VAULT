@@ -7,6 +7,7 @@ contract Multisigs {
     error ALREADY_EXECUTED();
     error NOT_ENOUGH_CONFIRMATIONS();
     error TIMELOCK_NOT_ELAPSED();
+    error TIMELOCK_NOT_STARTED();
 
     struct Transaction {
         address to;
@@ -81,7 +82,6 @@ contract Multisigs {
         confirmed[txId][msg.sender] = true;
         txn.confirmations++;
 
-        // ✅ Fix 3: set timelock the moment threshold is reached
         if (txn.confirmations == threshold) {
             txn.executionTime = block.timestamp + TIMELOCK_DURATION;
         }
@@ -93,6 +93,7 @@ contract Multisigs {
         Transaction storage txn = transactions[txId];
         if (txn.confirmations < threshold) revert NOT_ENOUGH_CONFIRMATIONS();
         if (txn.executed) revert ALREADY_EXECUTED();
+        if (txn.executionTime == 0) revert TIMELOCK_NOT_STARTED();
         if (block.timestamp < txn.executionTime) revert TIMELOCK_NOT_ELAPSED();
 
         txn.executed = true;

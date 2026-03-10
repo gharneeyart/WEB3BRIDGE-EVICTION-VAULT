@@ -2,14 +2,12 @@
 pragma solidity ^0.8.30;
 
 import "../lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol";
-import "./MerkleProofHandler.sol";
-import "./EmergencyFunctions.sol";
+import {MerkleProofHandler} from "./MerkleProofHandler.sol";
+
 
 contract EvictionVault is MerkleProofHandler {
     mapping(address => uint256) public balances;
     uint256 public totalVaultValue;
-    mapping(uint256 => bool) public isPauseTx;
-    mapping(uint256 => bool) public isUnpauseTx;
 
     event Deposit(address indexed depositor, uint256 amount);
     event Withdrawal(address indexed withdrawer, uint256 amount);
@@ -26,13 +24,13 @@ contract EvictionVault is MerkleProofHandler {
         emit Deposit(msg.sender, msg.value);
     }
 
-    function deposit() external payable {
+    function deposit() external payable whenNotPaused {
         balances[msg.sender] += msg.value;
         totalVaultValue += msg.value;
         emit Deposit(msg.sender, msg.value);
     }
 
-    function withdraw(uint256 amount) external {
+    function withdraw(uint256 amount) external whenNotPaused{
         require(balances[msg.sender] >= amount, "Insufficient balance");
 
         balances[msg.sender] -= amount;
